@@ -1,0 +1,34 @@
+//@version=5
+indicator("5m Supertrend+RSI+Volume Strategy", overlay=true)
+
+// Parameters
+atrPeriod = 14
+atrMultiplier = 1.4
+rsiLen = 21
+rsiSmaLen = 16
+
+// Supertrend (use built-in function)
+[st, st_dir] = ta.supertrend(atrMultiplier, atrPeriod)
+
+// RSI and its SMA
+rsi = ta.rsi(close, rsiLen)
+rsiSma = ta.sma(rsi, rsiSmaLen)
+
+// Conditions
+volumeUp = volume > volume[1]
+bullish = close > open
+closeAbovePrevHigh = close > high[1]
+crossAboveST = ta.crossover(close, st)
+
+buySignal = crossAboveST and (rsi > rsiSma) and volumeUp and bullish and closeAbovePrevHigh
+sellSignal = ta.crossunder(close, st)
+
+// Plot
+plot(st, color=st_dir == 1 ? color.green : color.red)
+
+// Alerts (use webhook in alert configuration and paste JSON from scripts/tv_alert_template.txt)
+alertcondition(buySignal, title="Buy Alert", message='{"secret":"changeme","symbol":"{{ticker}}","action":"BUY","timeframe":"5m","signal_id":"{{timetoday}}"}')
+alertcondition(sellSignal, title="Sell Alert", message='{"secret":"changeme","symbol":"{{ticker}}","action":"SELL","timeframe":"5m","signal_id":"{{timetoday}}"}')
+
+plotshape(buySignal, title="Buy", location=location.belowbar, style=shape.labelup, color=color.green)
+plotshape(sellSignal, title="Sell", location=location.abovebar, style=shape.labeldown, color=color.red)

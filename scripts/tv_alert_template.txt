@@ -1,0 +1,7 @@
+{
+  "secret": "changeme",
+  "symbol": "BTCUSDT",
+  "action": "BUY",
+  "timeframe": "5m",
+  "signal_id": "example-123"
+}
